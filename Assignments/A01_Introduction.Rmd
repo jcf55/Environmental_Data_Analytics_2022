@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Jackie Fahrenholz"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -22,21 +22,21 @@ The completed exercise is due on <>.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: Last semester we worked with some data wrangling in John's Advanced GIS course. Regarding R, I took the Statistics course required by the Nicholas School Fall of 2020, though I had not had any coding experience prior to that. Finally, for Git we learned how to use the interface last semester, but using it through R is new to me!
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: Regarding recall for R vs Python syntax and therefore coding problem solving in general, I feel comfortable in this regard because of last semester's course. However, I'm not too sure what we will be getting into this semester and don't want to get ahead of myself.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
+> Answer: Programming and using these skills to edit and manage data is something that I wish to become more familiar with. As mentioned in the videos, my preferred method right now is using Excel so I hope to have enough comfortability with this process after this course ends!
 
 
 ## 2) GitHub
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository  and that you have updated your course README file. 
 
-> Answer: 
+> Answer: https://github.com/jcf55/Environmental_Data_Analytics_2022.git
 
 
