@@ -1,6 +1,6 @@
 ---
 title: "Assignment 3: Data Exploration"
-author: "Student Name, Section #0"
+author: "Jackie Fahrenholz, Section #2"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -13,32 +13,38 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Ex
 1. Change "Student Name, Section #" on line 3 (above) with your name and section number.
 2. Work through the steps, **creating code and output** that fulfill each instruction.
 3. Be sure to **answer the questions** in this assignment document.
-4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
-5. After Knitting, submit the completed exercise (PDF file) to the dropbox in Sakai. Add your last name into the file name (e.g., "FirstLast_A03_DataExploration.Rmd") prior to submission.
+4. When you have completed the assignment, **Knit** the text and code into a    single PDF file.
+5. After Knitting, submit the completed exercise (PDF file) to the dropbox in     Sakai. Add your last name into the file name (e.g., "FirstLast_A03_DataExploration.Rmd") prior to submission.
 
 The completed exercise is due on <>.
 
 
 ## Set up your R session
 
-1. Check your working directory, load necessary packages (tidyverse), and upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. **Be sure to add the `stringsAsFactors = TRUE` parameter to the function when reading in the CSV files.**
+1. Check your working directory, load necessary packages (tidyverse), and         upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for    litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. **Be sure to add the     `stringsAsFactors = TRUE` parameter to the function when reading in the             CSV files.**
 ```{r,  message = FALSE}
-
+#check working directory
+getwd()
+#have necessary packages available
+library(tidyverse)
+#load the datasets
+Neonics <- read.csv("../Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv" ,stringsAsFactors = TRUE)
+Litter <- read.csv("../Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv"  ,stringsAsFactors = TRUE)
 ```
 
 ## Learn about your system
 
-2. The neonicotinoid dataset was collected from the Environmental Protection Agency's ECOTOX Knowledgebase, a database for ecotoxicology research. Neonicotinoids are a class of insecticides used widely in agriculture. The dataset that has been pulled includes all studies published on insects. Why might we be interested in the ecotoxicologoy of neonicotinoids on insects? Feel free to do a brief internet search if you feel you need more background information. 
+2. The neonicotinoid dataset was collected from the Environmental Protection     Agency's ECOTOX Knowledgebase, a database for ecotoxicology research.     Neonicotinoids are a class of insecticides used widely in agriculture.                The dataset that has been pulled includes all studies published on insects. Why might we be interested in the ecotoxicologoy of neonicotinoids on insects?        Feel free to do a brief internet search if you feel you need more background information. 
 
-> Answer: 
+> Answer: Pesticides are targeted at insects so their effectiveness in      controlling pests is important as we wish to measure this when dealing with crop management. Though, this may impact species of insect like pollinaters (bees) unintentionally, or be harmful to other closely related organisms above them        on the food chain that may cause a negative food chain reaction. 
 
-3. The Niwot Ridge litter and woody debris dataset was collected from the National Ecological Observatory Network, which collectively includes 81 aquatic and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel free to do a brief internet search if you feel you need more background information. 
+3. The Niwot Ridge litter and woody debris dataset was collected from the     National Ecological Observatory Network, which collectively includes 81 aquatic     and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample     forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel        free to do a brief internet search if you feel you need more background     information. 
 
-> Answer: 
+> Answer: Measuring litter fall and woody debris is a measure of forest   productivity. Collecting this data is useful in monitoring forest health from         a tree growth and leaf area. It also measures decaying matter that will return     the nutrients back to the soil after decomposition occurs. 
 
-4. How is litter and woody debris sampled as part of the NEON network? Read the NEON_Litterfall_UserGuide.pdf document to learn more. List three pieces of salient information about the sampling methods here: 
+4. How is litter and woody debris sampled as part of the NEON network? Read the NEON_Litterfall_UserGuide.pdf document to learn more. List three pieces of        salient information about the sampling methods here: 
 
-> Answer: 
+> Answer: There are ground traps and elevated traps, which are sampled at     different intervals throughout the year. Plots are nested within each other,        and are given IDs. There are 7 functional groups (type of matter collected)       each with a measurement taken upon sampling.
 *
 *
 *
@@ -50,64 +56,81 @@ The completed exercise is due on <>.
 5. What are the dimensions of the dataset?
 
 ```{r}
-
+print(dim(Neonics))
 ```
 
-6. Using the `summary` function on the "Effect" column, determine the most common effects that are studied. Why might these effects specifically be of interest?
+6. Using the `summary` function on the "Effect" column, determine the most        common effects that are studied. Why might these effects specifically               be of interest?
 ```{r}
-
+summary(Neonics$Effect)
 ```
 
-> Answer: 
+> Answer: Mortality and Population are the two columns with the most      information. The effect of the chemical on the insects is important as is the abundance and or species of the insects that the information is being tested on. Density of a pest will change management practices.
 
-7. Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
-
-```{r}
-
-```
-
-> Answer: 
-
-8. Concentrations are always a numeric value. What is the class of Conc.1..Author. in the dataset, and why is it not numeric?
+7. Using the `summary` function, determine the six most commonly studied        species in the dataset (common name). What do these species have in common,         and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
 ```{r}
-
+summary(Neonics$Species.Common.Name)
 ```
 
-> Answer:
+> Answer: The six most studied species included in this study are: the honey      bee, parasitic wasp, buff tailed bumblebee, carniolan honey bee, bumble bee,    italian honeybee. These are all pollinator species, both native and non-native. 
+
+8. Concentrations are always a numeric value. What is the class of        Conc.1..Author. in the dataset, and why is it not numeric?
+
+```{r}
+class(Neonics$Conc.1..Author.)
+```
+
+> Answer: We loaded our data in with the condition of `stringAsFactor = TRUE`, 
+causing these values to be loaded as factors. This means that they are              
+recognized as categorical variables.
 
 
 
 ## Explore your data graphically (Neonics)
 
 9. Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year. 
-```{r}
-
+```{r, fig.height = 3, fig.width = 4}
+#how many years do we have
+summary(Neonics$Publication.Year)
+#plot the graph
+ggplot(Neonics) +
+  geom_freqpoly(aes(x = Publication.Year), bins = 38)
 ```
 
 10. Reproduce the same graph but now add a color aesthetic so that different Test.Location are displayed as different colors.
-```{r}
-
+```{r, fig.height = 3, fig.width = 4}
+#change the color!
+ggplot(Neonics) +
+  geom_freqpoly(aes(x = Publication.Year, color = Test.Location), bins = 38)
 ```
 
-Interpret this graph. What are the most common test locations, and do they differ over time?
+Interpret this graph. What are the most common test locations, and do they        differ over time?
 
-> Answer: 
+> Answer: The lab is the most common test location and increased in use 
+overtime. Natural field experiments were also common and fluxated overtime.    
 
-11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
+11. Create a bar graph of Endpoint counts. What are the two most common end     points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
 
-```{r}
-
+```{r, fig.height = 3, fig.width = 4 }
+ggplot(Neonics, aes(x = Endpoint)) +
+  geom_bar()
 ```
 
-> Answer: 
+> Answer: NOEL and LOEL are the two most common endpoints. According to the
+appendix these are 'non-observable-effect-level' and 'lowest-observable-effect-
+level' respectively. 
 >
 
 ## Explore your data (Litter)
 
 12. Determine the class of collectDate. Is it a date? If not, change to a date and confirm the new class of the variable. Using the `unique` function, determine which dates litter was sampled in August 2018. 
 ```{r}
-
+print(class(Litter$collectDate))
+Litter$collectDate <- as.Date(Litter$collectDate, format = "%d/%m/%Y")
+#check this to make sure it worked
+class(Litter$collectDate)
+#samples in Aug 2018?
+unique(Litter$collectDate)
 ```
 
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
