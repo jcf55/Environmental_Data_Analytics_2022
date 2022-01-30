@@ -111,7 +111,7 @@ overtime. Natural field experiments were also common and fluxated overtime.
 
 11. Create a bar graph of Endpoint counts. What are the two most common end     points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
 
-```{r, fig.height = 3, fig.width = 4 }
+```{r,fig.height = 3, fig.width = 8}
 ggplot(Neonics, aes(x = Endpoint)) +
   geom_bar()
 ```
@@ -126,35 +126,57 @@ level' respectively.
 12. Determine the class of collectDate. Is it a date? If not, change to a date and confirm the new class of the variable. Using the `unique` function, determine which dates litter was sampled in August 2018. 
 ```{r}
 print(class(Litter$collectDate))
-Litter$collectDate <- as.Date(Litter$collectDate, format = "%d/%m/%Y")
+Litter$collectDate <- as.Date(Litter$collectDate, format = "%Y-%m-%d")
 #check this to make sure it worked
-class(Litter$collectDate)
+print(class(Litter$collectDate))
 #samples in Aug 2018?
 unique(Litter$collectDate)
 ```
 
-13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
+13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that 
+obtained from `summary`?
 
 ```{r}
-
+#show all the unique values
+unique(Litter$plotID)
+#this counts them for you "# of distinct"
+n_distinct(Litter$plotID)
+#summarize those values
+summary(Litter$plotID)
 ```
 
-> Answer: 
+> Answer: Unique function allows us to see what the actually unique name of 
+each plot is whereas the summary function tells you the name and the count 
+of each of the unique plot names. 
 
-14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
-```{r}
-
+14. Create a bar graph of functionalGroup counts. This shows you what 
+type of litter is collected at the Niwot Ridge sites. Notice that litter 
+types are fairly equally distributed across the Niwot Ridge sites.
+```{r, fig.height = 3, fig.width = 8}
+ggplot(Litter, aes(x = functionalGroup)) +
+  geom_bar()
 ```
 
-15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup. 
-```{r}
-
+15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin
+plot of dryMass by functionalGroup. 
+```{r,fig.height = 3, fig.width = 4}
+#box plot
+ggplot(Litter) +
+  geom_boxplot(aes(x = dryMass, y = functionalGroup))
+#violin plot
+ggplot(Litter) +
+  geom_violin(aes(x = dryMass, y = functionalGroup), 
+              draw_quantiles = c(0.25, 0.5, 0.75))
 ```
 
-Why is the boxplot a more effective visualization option than the violin plot in this case?
+Why is the boxplot a more effective visualization option than the violin plot
+in this case?
 
-> Answer: 
+> Answer: In this case, you can see how the data distributed better in the case
+of the box plot compared to the violin plot. Violin plots are better for data
+that interacts with each other or to compare variable distribution across
+various categories
 
 What type(s) of litter tend to have the highest biomass at these sites? 
 
-> Answer: 
+> Answer: Needles, mixed, and twigs/branches
