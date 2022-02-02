@@ -99,16 +99,29 @@ write.csv(EPAair_PM25_NC2019.sel, row.names = FALSE, file = "../Data/Processed/E
 11. Save your processed dataset with the following file name: "EPAair_O3_PM25_NC2122_Processed.csv"
 
 ```{r}
-#7
+#7 - combine the datasets
+EPAair <- rbind(EPAair_O3_NC2018.sel, EPAair_O3_NC2019.sel, EPAair_PM25_NC2019.sel, EPAair_PM25_NC2018.sel)
 
-#8
+#8- create a pipe to wrangle the data
+EPAair.wrangle <-
+  EPAair %>%
+  filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center",
+                                "Bryson City", "Millbrook School")) %>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%
+  summarise(meanAQI = mean(DAILY_AQI_VALUE),
+            meanlat = mean(SITE_LATITUDE),
+            meanlon = mean(SITE_LONGITUDE)) %>%
+  mutate(Month = month(Date)) %>%
+  mutate(Year = year(Date))
 
-#9
-
-#10
-
-#11
-
+#9- spread the dataset out Spread your datasets such that AQI values for ozone and PM2.5 are in separate columns. Each location on a specific date should now occupy only one row.
+EPAair.spread <-
+  pivot_wider(EPAair.wrangle, names_from = AQS_PARAMETER_DESC ,
+              values_from = meanAQI)
+#10- call the dimensions
+dim(EPAair.spread)
+#11- write the new CSV
+write.csv(EPAair.spread, row.names = FALSE, file = "../Data/Processed/EPAair_O3_PM25_NC2122_Processed.csv")
 ```
 
 
@@ -122,12 +135,19 @@ write.csv(EPAair_PM25_NC2019.sel, row.names = FALSE, file = "../Data/Processed/E
 
 ```{r}
 #12(a,b)
-
-
+EPAair.spread.sum <-
+  EPAair.spread %>% 
+  group_by(Site.Name, Month, Year) %>% 
+  summarise(meanAQI.oz = mean(Ozone),
+            meanAQI.pm = mean(`PM 2.5`)) %>% 
+  #b - remove where meanAQI.oz and meanAQI.pm are N/A
+  filter(!is.na(meanAQI.oz) & !is.na(meanAQI.pm))
 #13
-
+dim(EPAair.spread.sum)
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: I used this because it removes the rows with data that is incomplete
+based on the specifications that I applied. If we used na.omit then it would 
+have removed than I was interested in, by taking any rows of data with NA out. 
