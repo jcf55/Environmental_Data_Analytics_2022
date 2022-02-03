@@ -114,7 +114,7 @@ EPAair.wrangle <-
   mutate(Month = month(Date)) %>%
   mutate(Year = year(Date))
 
-#9- spread the dataset out Spread your datasets such that AQI values for ozone and PM2.5 are in separate columns. Each location on a specific date should now occupy only one row.
+#9- spread the dataset
 EPAair.spread <-
   pivot_wider(EPAair.wrangle, names_from = AQS_PARAMETER_DESC ,
               values_from = meanAQI)
