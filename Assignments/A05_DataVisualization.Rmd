@@ -92,7 +92,7 @@ theme_set(mytheme)
 ggplot(chem.nutrients, aes(x = tp_ug, y = po4, color = lakename))+
   geom_point()+
   #line of best fit, colored black
-  geom_smooth(method = "lm")+
+  geom_smooth(method = "lm", color = "black")+
   #choose your limits; removing anymore on the x-axis wouldn't be
   #representative, despite there being a clump of data between 0-50
   ylim(0,50) +
@@ -145,7 +145,7 @@ between lakes?
 (6,7,8) while the temeperature was measured during all months.
 This may lead us to believe that you can only sample the other
 variables during summer months, or that this pollutant is
-present during this time based on seasonal activities. 
+present during this time based on seasonal activities. Temperature on average is higher for Paul lake is higher than Peter lake.  
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the 
 "Needles" functional group. Plot the dry mass of needle litter by date and 
@@ -184,10 +184,10 @@ plot_grid(litter.facet, litter.subset, nrow = 2, align = 'hv',
 Question: Which of these plots (6 vs. 7) do you think is more effective, 
 and why? 
 
-> Answer: I think that the facetwrwap graph `litter.facet` is more effective in displaying the differences between each of the classes because you can visually 
+> Answer: I think that the facetwrap graph `litter.facet` is more effective in displaying the differences between each of the classes because you can visually 
 compare the density of points next to each other as well as the variation 
 between years and types of nlcd class across the board. The first graph though 
 it's visually appealing doesn't give us as full of a picture but rather 
-displaying how similar or different they are based on ncld class in the given 
+displays how similar or different they are based on ncld class in the given 
 year. These plots are more crowded though so only general conclusions could be 
 made based on this scale. 
