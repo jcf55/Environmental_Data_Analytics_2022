@@ -95,7 +95,7 @@ TukeyHSD(Litter.Totals.anova)
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
 Litter.Totals.groups
 
-# Graph the results
+# Graph the results- angled text on axis in this code
 Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -109,7 +109,7 @@ print(Litter.Totals.plot)
 
 What information does the output give us? How might we report this information in a report?
 
-> 
+> See differences in the mean from the graph. We would want to order this graph so that all the A, B, C, D groups are aligned. This way we could visually compare items. 
 
 ## TWO-WAY ANOVA
 ### Main effects
@@ -163,7 +163,8 @@ Litter.groups
 # Edit this graph to make it more visually appealing.
 # Add letters to represent statistical groupings.
 Litter.anova.plot <- ggplot(Litter, aes(y = dryMass, x = nlcdClass, color = functionalGroup)) +
-  geom_boxplot()
+  geom_boxplot() +
+  stat_summary(geom = "text",label = c('a', 'b', 'bc', 'cd', 'd'))
 print(Litter.anova.plot)
 
 ```

@@ -83,7 +83,7 @@ cor.test(PeterPaul.chem.nutrients$irradianceWater, PeterPaul.chem.nutrients$dept
 ```
 Question: How would you report the results of this test (overall findings and report of statistical output)?
 
->  
+>  There is a significant negative correlation between irradiance and depth. There are lower light levels at higher depths. The model explains about 31% of the total variance in irradience.
 
 So, we see there is a significant negative correlation between irradiance and depth (lower light levels at greater depths), and that this model explains about 31 % of the total variance in irradiance. Let's visualize this relationship and the model itself. 
 
@@ -117,6 +117,7 @@ print(irradiancebydepth)
 Given the distribution of irradiance values, we don't have a linear relationship between x and y in this case. Let's try log-transforming the irradiance values. Note we also removing the observations that seems to ba an outlier.
 
 ```{r, fig.height = 3, fig.width = 4}
+#we want to take the log of this data set so we have to remove 0s
 PeterPaul.chem.nutrients <- filter(PeterPaul.chem.nutrients, 
                                    irradianceWater != 0 & irradianceWater < 5000)
 irradiance.regression2 <- lm(data = PeterPaul.chem.nutrients, log(irradianceWater) ~ depth)
@@ -127,6 +128,7 @@ plot(irradiance.regression2)
 par(mfrow = c(1,1))
 
 # Add a line and standard error for the linear regression
+#use the scale_y_log to get the relationship in straight line
 irradiancebydepth2 <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
   geom_smooth(method = "lm") +
