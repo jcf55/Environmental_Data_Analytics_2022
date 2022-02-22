@@ -19,17 +19,17 @@ editor_options:
 ```{r, message = FALSE}
 library(tidyverse)
 library(agricolae)   
-
-PeterPaul.chem.nutrients <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+library(corrplot)
+PeterPaul.chem.nutrients <- read.csv("../Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
 # Set date to date format
 PeterPaul.chem.nutrients$sampledate <- as.Date(PeterPaul.chem.nutrients$sampledate, format = "%Y-%m-%d")
 
-EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv", stringsAsFactors = TRUE)
+EPAair <- read.csv("../Data/Processed/EPAair_O3_PM25_NC2021_Processed.csv", stringsAsFactors = TRUE)
 # Set date to date format
 EPAair$Date <- as.Date(EPAair$Date, format = "%Y-%m-%d")
 
 
-Litter <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
+Litter <- read.csv("../Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
 # Set date to date format
 Litter$collectDate <- as.Date(Litter$collectDate , format = "%Y-%m-%d")
 
@@ -66,7 +66,7 @@ Are Ozone levels below the threshold for "good" AQI index (0-50)?
 
 > Exercise 1: State the hypotheses for testing mean of AQI index.
 
-> Answer: 
+> Answer: The null hypothesis is that the means of the AQIs are not distinctly different. The alternative hypothesis is that the means of the AQIs are distinctly different based on a given confidence interval. 
 
 
 ```{r}
@@ -149,10 +149,30 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 2. geom_boxplot of ozone divided by year . Add letters representing a significant difference between 2018 and 2019 (hint: stat_summary). 
 3. geom_violin of ozone divided by year, with the 0.5 quantile marked as a horizontal line. Add letters representing a significant difference between 2018 and 2019. 
 
-```{r}
+```{r, fig.height = 2, fig.width= 3, warning= FALSE}
 #Exercise 2:
-
-
+#density plot
+ggplot(EPAair, aes(Ozone, fill = as.factor(Year))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density PLot: Ozone by year",
+       x = "Ozone AQI Value",
+       y = "Density",
+       fill = "Year") +
+  scale_fill_manual(values=c('blue', 'yellow'))
+#boxplot
+ggplot(EPAair, aes(x= as.factor(Year), y = Ozone)) +
+  geom_boxplot() +
+  #this is how you get labels to show they are different
+  stat_summary(geom = "text", fun.y = max, vjust = -1, size = 4,
+               label = c("a", "b"), color ='red')+
+  ylim(0,150)
+  labs(x = "", y = "Ozone AQI value")
+#violin plot
+ggplot(EPAair, aes(x = as.factor(Year), y = Ozone)) +
+  geom_violin(draw_quantiles = 0.5) +
+  stat_summary(geom = "text", fun.y = max,  vjust = -1, size =4,
+               label = c("b", "a"), color = 'red') +
+  labs(x = "", y = "Ozone AQI Value")
 ```
 
 ## Linear Regression
@@ -162,15 +182,18 @@ Important components of the linear regression are the correlation and the R-squa
 For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 
 ```{r}
+#sum variance - total variance = adjusted R^2 value. The smaller the value, the less variance there is. 
+# p-value states the strength of the relationship between the variables
 
 #Exercise 3: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
-
-
+pm.oz.lm <- lm(EPAair$PM2.5 ~ EPAair$Ozone) #ozone is second b/c it's the independent variable
+#summary
+summary(pm.oz.lm)
 
 #Exercise 4: Build a scatterplot. Add a line and standard error for the linear regression. 
-
-
-
+ggplot(EPAair, aes(x = Ozone, y = PM2.5)) +
+  geom_point() + 
+  geom_smooth(method = "lm") #if you don't want standard error se = FALSE 
 ```
 
 
@@ -181,17 +204,21 @@ What other variables can we add to improve model?
 ```{r}
 
 #Exercise 5: Build correlation plots and identify more possible explanatory variables to add to the regression.
-
-
-
+#create the correlation object
+the_cor <- cor(EPAair %>% select(SITE_LATITUDE:PM2.5) %>% drop_na())
+# plot the matrix
+corrplot(the_cor, method = "ellipse")
+corrplot.mixed(the_cor, upper = "ellipse")
 
 #Exercise 6: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 5?
+the_lm <- lm(data = EPAair, PM2.5 ~ Ozone + SITE_LATITUDE + SITE_LONGITUDE + Year + Month)
+summary(the_lm)
 
-
-
+step(the_lm) #the final output from this is the lm we want to use
 
 #Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 5. 
-
+the_lm_revised <- lm(data = EPAair, PM2.5 ~ Ozone + Month + SITE_LATITUDE + SITE_LONGITUDE)
+summary(the_lm_revised) #higher degrees of freedom so this is better
 ```
 
 

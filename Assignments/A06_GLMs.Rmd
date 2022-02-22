@@ -72,12 +72,16 @@ chem.phys.wrangle <-
   #select the specific columns
   select(lakename, year4, daynum, depth, temperature_C)%>%
   #this gets month by itself so we can filter for it
+  #using the lubridate function didn't return anything just 
+  #rlang error
   mutate(chem.phys, Month = format(sampledate,"%m"))%>% 
   #filters for only July
   filter(Month == '07') %>%
   #get rid of incomplete instances
   filter(!is.na(temperature_C) & !is.na(depth) 
-         & !is.na(daynum) & !is.na(year4))
+         & !is.na(daynum) & !is.na(year4)) %>%
+  #re-select only the columns of interest
+  select(lakename, year4, daynum, depth, temperature_C)
 
 #5- visualize the data
 #chose to color by temp because we only care about the relationship between these two variables, not between sites
@@ -137,8 +141,7 @@ step(chemAIC)
 #the orginal is the best
 chemAIC <- lm(data = chem.phys.wrangle, temperature_C ~ depth + year4 + daynum)
 summary(chemAIC)
-#compare to depth only
-summary(lm.temp.depth)
+step(chemAIC)
 ```
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
