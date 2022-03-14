@@ -108,7 +108,7 @@ st_bbox(counties_sf)
 head(counties_sf)
 
 #Plot the data, colored by area of land in each county
-mapView(counties_sf, zcol = "AWATER")
+mapView(counties_sf, zcol = "ALAND")
 ```
 
 ### 2.2.2 Read in and explore 8-digit HUC watersheds for NC
@@ -117,19 +117,18 @@ mapView(counties_sf, zcol = "AWATER")
 
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
-
-
+huc8_sf<- st_read('./Data/Spatial/NCHUC8.shp')
 #Reveal the columns
-
+colnames(huc8_sf)
 
 #Check the CRS
-
+st_crs(huc8_sf)
 
 #Examine some records
-
+head(huc8_sf)
 
 #View the data as a map, colored by the acreage in each
-
+mapView(huc8_sf, zcol = "ACRES")
 
 ```
 
@@ -139,11 +138,12 @@ mapView(counties_sf, zcol = "AWATER")
 
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
-
-
+upperneuse_sf<- st_read('./Data/Spatial/NCHUC8.shp') %>%
+  filter(SUBBASIN == "Upper Neuse")
 
 #Create a map
-
+mapview(huc8_sf, col.regions = "orange") +
+  mapview(upperneuse_sf, col.regions = "purple")
 
 ```
 
@@ -205,7 +205,7 @@ We'll focus on just a few variables: Estimates of people in poverty ("E_POV") an
 #Read the 2018 SVI county-level dataset for NC
 svi2018_nc_raw <- read.csv(
   'https://svi.cdc.gov/Documents/Data/2018_SVI_Data/CSV/States_Counties/NorthCarolina_COUNTY.csv',
-  colClasses = c('FIPS' = 'factor')) %>% 
+  colClasses = c('FIPS' = 'factor')) %>%  #FIPS should be factor or characters not numbers
   select(COUNTY, FIPS, LOCATION, E_TOTPOP, E_POV, E_MINRTY)
 
 #Check structure
@@ -239,17 +239,21 @@ ggplot() +
 
 ```{r}
 #Compute HUC8 wind energy
-
-
-
+wind_energy_huc8 <- read.csv('https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv',
+                             colClasses = c('HUC_12' = 'factor')) %>%
+  mutate(HUC_8 = substr(HUC_12,1,8)) %>%
+  group_by(HUC_8) %>%
+  summarise(kWhkm2day = sum(kWhkm2day))
 
 #Join to HUC_8 features
-
-
-
+huc8_sf_wind <- merge(x = huc8_sf,
+                      y = wind_energy_huc8,
+                      by.x = "HUC_8",
+                      by.y = "HUC_8")
 
 #View the outputs
-
+mapview(huc8_sf_wind,
+        zcol = "kWhkm2day")
 
 
 ```
@@ -274,18 +278,18 @@ mapview(state_sf)
 
 ```{r Aggregate the HUC data on an attribute, saving as huc2_sf}
 #List the unique values in the DWQ_Basin field
-
-
+unique(huc8_sf$DWQ_Basin)
 
 
 #Summarize on DWQ Basin value
-
-
-
-
+huc2_sf <- huc8_sf %>%
+  group_by(DWQ_Basin) %>%
+  summarise(
+    ACRES = sum(ACRES),
+    SQ_MILE = sum(SQ_MILES))
   
 #Map the data
-
+mapview(huc2_sf, zcol = "DWQ_Basin")
 ```
 
 ## 3.2 Transforming coordinate reference systems of datasets

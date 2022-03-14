@@ -34,7 +34,7 @@ library(lubridate)
 
 #install.packages('sf')
 library(sf)
-#install.packages('leaflet')
+install.packages('leaflet')
 library(leaflet)
 #install.packages('mapview')
 library(mapview)
