@@ -130,6 +130,11 @@ head(huc8_sf)
 #View the data as a map, colored by the acreage in each
 mapView(huc8_sf, zcol = "ACRES")
 
+##can be mapped like this
+ggplot(data = huc8_sf) +
+  geom_sf(aes(fill=ACRES)) +
+  scale_fill_continuous(type = 'viridis')
+
 ```
 
 ### 2.2.3 Challenge!
@@ -144,7 +149,10 @@ upperneuse_sf<- st_read('./Data/Spatial/NCHUC8.shp') %>%
 #Create a map
 mapview(huc8_sf, col.regions = "orange") +
   mapview(upperneuse_sf, col.regions = "purple")
-
+##can also use ggplot
+ggplot() +
+  geom_sf(data = huc8_sf, fill = 'orange') +
+  geom_sf(data = upperneuse_sf, fill = 'purple')
 ```
 
 ### 2.2.4 Reading in GeoJSON data
@@ -368,16 +376,23 @@ mapview(neuse_counties_sf, zcol='Area_m2')
 
 ```{r EXERCISE: Clipping}
 #Select the Triangle County from the 
+triangle_co <- counties_sf_utm %>%
+  filter(NAME %in% c('Chatam', 'Durham', 'Orange', 'Wake'))
 
+#Grab the intersecting HUC_8s (see two ways)
+triangle_HUCs <- huc8_sf_utm %>%
+  filter(st_intersects(x = ., y = triangle_co, sparse = F))
+triangle_HUCs <- huc8_sf_utm[triangle_co,] #this is matrix notation
 
-
-  
-#Grab the intersecting HUC_8s
-
-
+ggplot() +
+  geom_sf(data = triangle_co, color = 'grey') +
+  geom_sf(data = huc8_sf_utm, color = 'green', fill = NA) +
+  geom_sf(data = triangle_HUCs, color = 'blue', fill = NA)
 
 #Intersect the HUC_8s
-
+triangle_HUCs.clipped <- triangle_co %>%
+  st_intersection(huc8_sf_utm)
+mapview(triangle_HUCs.clipped)
 
 
 
