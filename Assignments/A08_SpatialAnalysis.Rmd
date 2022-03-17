@@ -2,9 +2,9 @@
 title: 'Assignment 9: Spatial Analysis in R'
 author: "Jackie Fahrenholz"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 geometry: margin=2.54cm
 editor_options:
   chunk_output_type: console
@@ -66,7 +66,7 @@ mapView(counties_sf)
 
 6. What is the EPSG code of the Counties dataset? Is this a geographic or a projected coordinate reference system? (Or, does this CRS use angular or planar coordinate units?) To what datum is this CRS associated? (Tip: look the EPSG code on <https://spatialreference.org>) 
 
-> ANSWER: The EPSG code of this dataset is 4269. This is a projected coordinate system (NAD83).
+> ANSWER: The EPSG code of this dataset is 4269. This is a geographic coordinate system (NAD83) that uses degrees.
 > 
 
 
@@ -159,7 +159,7 @@ colnames(flow)
 #16. Join location data to it
 #similar columns are site_no and station_nm
 gauge_sf_join <- gauge_sf %>% 
-  full_join(flow, by = c("site_no", "station_nm"))
+  inner_join(flow, by = c("site_no", "station_nm"))
 
 #17. Show the column names of the joined dataset
 colnames(gauge_sf_join)
@@ -232,8 +232,8 @@ counties_sel <- counties_sf_utm %>%
 lanc_gauges <- gauge_sf_utm[counties_sel,]
 
 #24 Plot
-mapview(lanc_gauges, col.region = "green", alpha.regions = 3) +
-  mapview(counties_sel, col.region = "grey", alpha.regions = 1) +
+mapview(lanc_gauges, col.region = "black", alpha.regions = 3) +
+  mapview(counties_sel, col.region = "green", alpha.regions = 1) +
   mapview(counties_sf_utm, alpha.regions = 0, legend = FALSE) 
 
 
