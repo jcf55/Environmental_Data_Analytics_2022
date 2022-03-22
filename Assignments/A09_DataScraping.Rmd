@@ -1,6 +1,6 @@
 ---
 title: "Assignment 09: Data Scraping"
-author: "Student Name"
+author: "Jackie Fahrenholz"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -30,8 +30,22 @@ This exercise accompanies the lessons in Environmental Data Analytics on data sc
 
 ```{r, message = FALSE}
 #1
+#get and check wd
+setwd("C:/Users/Jackie/Desktop/ENV872/Environmental_Data_Analytics_2022/Assignments")
+getwd()
 
+#load packages
+library(tidyverse)
+library(rvest)
+library(lubridate)
+#make the theme
+mytheme <- theme_classic(base_size = 13) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
 
+#set  theme
+theme_set(mytheme) 
 ```
 
 2. We will be scraping data from the NC DEQs Local Water Supply Planning website, specifically the Durham's 2019 Municipal Local Water Supply Plan (LWSP): 
@@ -45,7 +59,8 @@ Indicate this website as the as the URL to be scraped. (In other words, read the
 
 ```{r set.the.scraping.website}
 #2
-
+webpage <- read_html('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2020')
+webpage
 
 ```
 
@@ -65,10 +80,22 @@ In the code chunk below scrape these values, assigning them to three separate va
 
 ```{r scrape.the.data}
 #3
-water.system.name <- 
-pswid <- 
-ownership <- 
-max.withdrawals.mgd <- 
+water.system.name <- webpage %>% 
+  html_nodes("div+ table tr:nth-child(1) td:nth-child(2)") %>% 
+  html_text()
+water.system.name
+pswid <- webpage %>% 
+  html_nodes("td tr:nth-child(1) td:nth-child(5)") %>% 
+  html_text()
+pswid
+ownership <- webpage %>% 
+  html_nodes("div+ table tr:nth-child(2) td:nth-child(4)") %>% 
+  html_text()
+ownership
+max.withdrawals.mgd <- webpage %>% 
+  html_nodes("th~ td+ td") %>% 
+  html_text()
+max.withdrawals.mgd
 
 ```
 
@@ -83,11 +110,27 @@ max.withdrawals.mgd <-
 
 ```{r create.a.dataframe.from.scraped.data}
 #4
+#Create a dataframe of withdrawals; remember months aren't in order
+df_ncwater <- data.frame("Month" = c(1,5,9,2,6,10,3,7,11,4,8,12),
+                         "Year" = rep(2020,12), 
+                             "Max_Withdrawals_mgd" = as.numeric(max.withdrawals.mgd))
 
-
+#modify to add the rest of the columns, and include date column
+df_ncwater <- df_ncwater %>% 
+  mutate(Water_system = !!water.system.name, 
+         PSWID = !!pswid,
+         Ownership = !!ownership,
+         Date = my(paste(Month,"-",Year))) 
 
 #5
-
+ggplot(df_ncwater,aes(x=Date,y=Max_Withdrawals_mgd)) + 
+  geom_line() + 
+  geom_smooth(method="loess",se=FALSE) +
+  labs(title = paste("2020 Max Daily Use for PSWID:",pswid),
+       subtitle = ownership,
+       y="Max Daily Use (mgd)",
+       x="Date") +
+  theme(plot.subtitle = element_text(hjust = 0.5))
 
 
 ```
@@ -96,7 +139,42 @@ max.withdrawals.mgd <-
 
 ```{r construct.a.scraping.function}
 #6.
+#this variable will have to be manually entered
+the_year <- 2020
 
+#Create our scraping function
+scrape.it <- function(the_year, pswid){
+  #Format based on webpage recall method 
+  the_website <- read_html(paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pswid=', 
+                                  pswid,'&year=',the_year))
+  
+  #Set the 'tag' for each variable from above
+  water.system.name.tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
+  pswid.tag <- "td tr:nth-child(1) td:nth-child(5)"
+  ownership.tag <- "div+ table tr:nth-child(2) td:nth-child(4)"
+  max.withdrawals.mgd.tag <- "th~ td+ td"
+  
+  #Scrape the data items
+  water.system.name <- the_website %>% html_nodes(water.system.name.tag) %>% html_text()
+  pswid <- the_website %>% html_nodes(pswid.tag) %>%  html_text()
+  ownership <- the_website %>% html_nodes(ownership.tag) %>% html_text()
+  max.withdrawals.mgd <- the_website %>% html_nodes(max.withdrawals.mgd.tag) %>% html_text()
+  
+  #Convert to a dataframe
+  df_ncwater <- data.frame("Month" = c(1,5,9,2,6,10,3,7,11,4,8,12),
+                         "Year" = rep(2020,12), 
+                             "Max_Withdrawals_mgd" = as.numeric(max.withdrawals.mgd)) %>% 
+    mutate(Water_system = !!water.system.name, 
+         PSWID = !!pswid,
+         Ownership = !!ownership,
+         Date = my(paste(Month,"-",Year)))
+  
+  #Pause for a moment - scraping etiquette
+  Sys.sleep(2)
+  
+  #Return the dataframe
+  return(df_ncwater)
+}
 
 
 ```
@@ -105,7 +183,8 @@ max.withdrawals.mgd <-
 
 ```{r fetch.and.plot.Durham.2015.data}
 #7
-
+test_df <- scrape.it(2015,'03-32-010')
+view(test_df)
 
 ```
 
