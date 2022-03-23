@@ -83,19 +83,18 @@ In the code chunk below scrape these values, assigning them to three separate va
 water.system.name <- webpage %>% 
   html_nodes("div+ table tr:nth-child(1) td:nth-child(2)") %>% 
   html_text()
-water.system.name
-pswid <- webpage %>% 
+
+pwsid <- webpage %>% 
   html_nodes("td tr:nth-child(1) td:nth-child(5)") %>% 
   html_text()
-pswid
+
 ownership <- webpage %>% 
   html_nodes("div+ table tr:nth-child(2) td:nth-child(4)") %>% 
   html_text()
-ownership
+
 max.withdrawals.mgd <- webpage %>% 
   html_nodes("th~ td+ td") %>% 
   html_text()
-max.withdrawals.mgd
 
 ```
 
@@ -118,7 +117,7 @@ df_ncwater <- data.frame("Month" = c(1,5,9,2,6,10,3,7,11,4,8,12),
 #modify to add the rest of the columns, and include date column
 df_ncwater <- df_ncwater %>% 
   mutate(Water_system = !!water.system.name, 
-         PSWID = !!pswid,
+         PWSID = !!pwsid,
          Ownership = !!ownership,
          Date = my(paste(Month,"-",Year))) 
 
@@ -126,7 +125,7 @@ df_ncwater <- df_ncwater %>%
 ggplot(df_ncwater,aes(x=Date,y=Max_Withdrawals_mgd)) + 
   geom_line() + 
   geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste("2020 Max Daily Use for PSWID:",pswid),
+  labs(title = paste("2020 Max Daily Use for PWSID:",pwsid),
        subtitle = ownership,
        y="Max Daily Use (mgd)",
        x="Date") +
@@ -139,33 +138,33 @@ ggplot(df_ncwater,aes(x=Date,y=Max_Withdrawals_mgd)) +
 
 ```{r construct.a.scraping.function}
 #6.
-#this variable will have to be manually entered
+
 the_year <- 2020
 
 #Create our scraping function
-scrape.it <- function(the_year, pswid){
+scrape.it <- function(the_year, pwsid){
   #Format based on webpage recall method 
-  the_website <- read_html(paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pswid=', 
-                                  pswid,'&year=',the_year))
+  the_website <- read_html(paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=', 
+                                  pwsid,'&year=',the_year))
   
   #Set the 'tag' for each variable from above
   water.system.name.tag <- "div+ table tr:nth-child(1) td:nth-child(2)"
-  pswid.tag <- "td tr:nth-child(1) td:nth-child(5)"
+  pwsid.tag <- "td tr:nth-child(1) td:nth-child(5)"
   ownership.tag <- "div+ table tr:nth-child(2) td:nth-child(4)"
   max.withdrawals.mgd.tag <- "th~ td+ td"
   
   #Scrape the data items
   water.system.name <- the_website %>% html_nodes(water.system.name.tag) %>% html_text()
-  pswid <- the_website %>% html_nodes(pswid.tag) %>%  html_text()
+  pwsid <- the_website %>% html_nodes(pwsid.tag) %>%  html_text()
   ownership <- the_website %>% html_nodes(ownership.tag) %>% html_text()
   max.withdrawals.mgd <- the_website %>% html_nodes(max.withdrawals.mgd.tag) %>% html_text()
   
   #Convert to a dataframe
   df_ncwater <- data.frame("Month" = c(1,5,9,2,6,10,3,7,11,4,8,12),
-                         "Year" = rep(2020,12), 
+                         "Year" = rep(the_year,12), 
                              "Max_Withdrawals_mgd" = as.numeric(max.withdrawals.mgd)) %>% 
     mutate(Water_system = !!water.system.name, 
-         PSWID = !!pswid,
+         PWSID = !!pwsid,
          Ownership = !!ownership,
          Date = my(paste(Month,"-",Year)))
   
@@ -192,8 +191,20 @@ view(test_df)
 
 ```{r fetch.and.plot.Durham.2015.data}
 #8
-
-
+#create the Asheville dataframe
+ash_df <- scrape.it(2015,'01-11-010')
+view(ash_df)
+#combine the dataframes
+merge_df <- rbind(test_df, ash_df)
+view(merge_df)
+#create a plot that compares them
+ggplot(merge_df,aes(x=Date,y=Max_Withdrawals_mgd)) + 
+  geom_line(aes(color = Water_system)) +
+  labs(title = paste("2015 Max Daily Use for PWSID:",pwsid),
+       subtitle = ownership,
+       y="Max Daily Use (mgd)",
+       x="Date") +
+  theme(plot.subtitle = element_text(hjust = 0.5))
 ```
 
 
@@ -201,8 +212,27 @@ view(test_df)
 
 ```{r}
 #9
-
+#set the variables
+the_years = rep(2010:2019)
+my_facility = '01-11-010'
+#use the lapply method
+ash_many_df <- lapply(X = the_years,
+                  FUN = scrape.it,
+                  pwsid = my_facility)
+#conflate
+many_df <- bind_rows(ash_many_df)
+#then plot it
+ggplot(many_df,aes(x=Date,y=Max_Withdrawals_mgd)) + 
+  geom_line() + 
+  geom_smooth(method="loess",se=FALSE) +
+  labs(title = paste("2010 to 2019 Max Daily Use Trend for PWSID:",pwsid),
+       subtitle = ownership,
+       y="Max Daily Use (mgd)",
+       x="Date") +
+  theme(plot.subtitle = element_text(hjust = 0.5))
 
 ```
 
 >Question: Just by looking at the plot (i.e. not running statistics), does Asheville have a trend in water usage over time?
+
+Yes by looking at the plot created above, the trend in water usage over time has increased based on the trendline that was created for the plot. 
