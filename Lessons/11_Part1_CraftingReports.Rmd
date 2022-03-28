@@ -65,18 +65,28 @@ See: <https://rmarkdown.rstudio.com> and class recording.
 
 <Fill in our discussion below with bullet points. Use italics and bold for emphasis (hint: use the cheat sheets or `Help` →`Markdown Quick Reference` to figure out how to make bold and italic text).> 
 
+* R Markdown is limited to ~~one language~~ **many languages**
+* Directly formats code into documents
+* Can create multiple forms of output (i.e. powerpoints, pdfs, htmls)
 
 ## TEXT EDITING CHALLENGE
 
 Create a table below that details the example datasets we have been using in class. The first column should contain the names of the datasets and the second column should include some relevant information about the datasets. (Hint: use the cheat sheets to figure out how to make a table in Rmd)
 
+Name   | Variable Type
+-------|---------------
+Car    | Vehicle
+Apple  | Fruit
+Turtle | Animal
 
 ## R CHUNK EDITING CHALLENGE
 
 ### Installing packages
 
 Create an R chunk below that installs the package `knitr`. Instead of commenting out the code, customize the chunk options such that the code is not evaluated (i.e., not run).
-
+```{r install.package, eval= FALSE}
+install.packages('knitr')
+```
 
 ### Setup
 
@@ -85,7 +95,26 @@ Create an R chunk below called "setup" that checks your working directory, loads
 Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, and set the date column to a date format.
 
 Customize the chunk options such that the code is run but is not displayed in the final document.
+```{r setup, message = FALSE, include = FALSE}
+#check the working directory
+getwd()
+#load the packages
+library(tidyverse)
+library(lubridate)
+library(knitr)
+#create and set theme
+mytheme <- theme_classic(base_size = 13) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
+theme_set(mytheme) 
 
+#load in the data and format it properly
+lake_nutrient <- read_csv("../Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
+head(lake_nutrient)
+lake_nutrient$sampledate <- as.Date(lake_nutrient$sampledate, 
+                                     format = "%m/%d/%y")
+```
 
 ### Data Exploration, Wrangling, and Visualization
 
@@ -94,18 +123,43 @@ Create an R chunk below to create a processed dataset do the following operation
 -   Include all columns except lakeid, depth_id, and comments
 -   Include only surface samples (depth = 0 m)
 -   Drop rows with missing data
+```{r process data}
+lake_wrangle <-
+  lake_nutrient %>%
+  select(lakename, year4, daynum, sampledate, depth, tn_ug, tp_ug, 
+         nh34, no23, po4) %>%
+  filter(depth == 0) %>%
+  filter(!is.na(tn_ug) & !is.na(depth) 
+         & !is.na(daynum) & !is.na(year4) & !is.na(tp_ug) & !is.na(nh34) & !is.na(no23) & !is.na(po4))
+```
 
 Create a second R chunk to create a summary dataset with the mean, minimum, maximum, and standard deviation of total nitrogen concentrations for each lake. Create a second summary dataset that is identical except that it evaluates total phosphorus. Customize the chunk options such that the code is run but not displayed in the final document.
+```{r summarize, message = FALSE, include = FALSE}
 
+```
 Create a third R chunk that uses the function `kable` in the knitr package to display two tables: one for the summary dataframe for total N and one for the summary dataframe of total P. Use the `caption = " "` code within that function to title your tables. Customize the chunk options such that the final table is displayed but not the code used to generate the table.
 
+```{r table building, echo=FALSE, fig.align = 'left', fig.cap = 'Summary of Total N'}
+
+
+```
 Create a fourth and fifth R chunk that generates two plots (one in each chunk): one for total N over time with different colors for each lake, and one with the same setup but for total P. Decide which geom option will be appropriate for your purpose, and select a color palette that is visually pleasing and accessible. Customize the chunk options such that the final figures are displayed but not the code used to generate the figures. In addition, customize the chunk options such that the figures are aligned on the left side of the page. Lastly, add a fig.cap chunk option to add a caption (title) to your plot that will display underneath the figure.
+```{r total N display, echo = FALSE, fig.align = 'left', fig.cap = 'Summary of Total N'}
 
+```
 
+```{r total P display, echo = FALSE, fig.align = 'left', fig.cap = 'Summary of Total P'}
+
+```
 ### Communicating results
 
 Write a paragraph describing your findings from the R coding challenge above. This should be geared toward an educated audience but one that is not necessarily familiar with the dataset. Then insert a horizontal rule below the paragraph. Below the horizontal rule, write another paragraph describing the next steps you might take in analyzing this dataset. What questions might you be able to answer, and what analyses would you conduct to answer those questions?
 
+*insert paragraph about findings
+
+***
+
+*insert paragraph about next steps and questions
 
 ## KNIT YOUR PDF
 When you have completed the above steps, try knitting your PDF to see if all of the formatting options you specified turned out as planned. This may take some troubleshooting.
